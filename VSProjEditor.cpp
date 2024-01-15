@@ -3,6 +3,12 @@
 
 namespace VSProjEditor
 {
+	constexpr auto WARNING_VERSION_NODE_NAME = L"WarningVersion";
+	constexpr auto DISABLE_SPECIFIC_WARNINGS_NODE_NAME = L"DisableSpecificWarnings";
+	constexpr auto ITEM_DEFINITION_GROUP_NODE_NAME = L"ItemDefinitionGroup";
+	constexpr auto ITEM_DEFINITION_GROUP_CONDITION_ATTR = L"Condition";
+	constexpr auto CL_COMPILE_NODE_NAME = L"ClCompile";
+
 	std::mutex _m{};
 	static void PrintHelp()
 	{
@@ -166,12 +172,12 @@ auto fRun = [&](const auto& file)
 		return;
 	}
 	std::vector<CComPtr<IXMLDOMNode>> allItemDefinitionGroups{};
-	FindNodesByName((CComPtr<IXMLDOMNode>)pXMLDoc, L"ItemDefinitionGroup", allItemDefinitionGroups, true);
+	FindNodesByName((CComPtr<IXMLDOMNode>)pXMLDoc, ITEM_DEFINITION_GROUP_NODE_NAME, allItemDefinitionGroups, true);
 	for (auto& itemDefinitionGroup : allItemDefinitionGroups)
 	{
 
 		bool bFoundBuildType = false;
-		if (auto conditionNode = FindNodeAttribute(itemDefinitionGroup, L"Condition"))
+		if (auto conditionNode = FindNodeAttribute(itemDefinitionGroup, ITEM_DEFINITION_GROUP_CONDITION_ATTR))
 		{
 			auto conditionValue = GetNodeValue(conditionNode);
 			if (conditionValue.empty())
@@ -190,13 +196,13 @@ auto fRun = [&](const auto& file)
 			continue;
 		std::vector<CComPtr<IXMLDOMNode>> allClCompileNodes{};
 
-		FindNodesByName(itemDefinitionGroup, L"ClCompile", allClCompileNodes, false);
+		FindNodesByName(itemDefinitionGroup, CL_COMPILE_NODE_NAME, allClCompileNodes, false);
 		for (auto& nodeClCompile : allClCompileNodes)
 		{
 			std::vector<CComPtr<IXMLDOMNode>> allDisableSpecificWarningsNodes{};
 			std::vector<CComPtr<IXMLDOMNode>> allWarningVersionNodes{};
 			if (!allWarningsToAdd.empty() || !allWarningsToRemove.empty()) {
-				FindNodesByName(nodeClCompile, L"DisableSpecificWarnings", allDisableSpecificWarningsNodes, true);
+				FindNodesByName(nodeClCompile, DISABLE_SPECIFIC_WARNINGS_NODE_NAME, allDisableSpecificWarningsNodes, true);
 
 				if (!allDisableSpecificWarningsNodes.empty())
 				{
@@ -208,7 +214,7 @@ auto fRun = [&](const auto& file)
 				}
 				else
 				{
-					if (auto disableSpecificWarningsNode = CreateNode(pXMLDoc, L"DisableSpecificWarnings", nodeClCompile))
+					if (auto disableSpecificWarningsNode = CreateNode(pXMLDoc, DISABLE_SPECIFIC_WARNINGS_NODE_NAME, nodeClCompile))
 					{
 						std::vector<std::wstring> emptyVec{};
 						disableSpecificWarningsNode->put_text((_bstr_t)UpdateNodeWarnings(GetNodeText(disableSpecificWarningsNode), allWarningsToAdd, emptyVec).c_str());
@@ -218,7 +224,7 @@ auto fRun = [&](const auto& file)
 			}
 
 			if (!strWarningVersion.empty()) {
-				FindNodesByName(nodeClCompile, L"WarningVersion", allWarningVersionNodes, true);
+				FindNodesByName(nodeClCompile, WARNING_VERSION_NODE_NAME, allWarningVersionNodes, true);
 
 				if (!allWarningVersionNodes.empty())
 				{
@@ -232,7 +238,7 @@ auto fRun = [&](const auto& file)
 				}
 				else
 				{
-					if (auto warningVersion = CreateNode(pXMLDoc, L"WarningVersion", nodeClCompile))
+					if (auto warningVersion = CreateNode(pXMLDoc, WARNING_VERSION_NODE_NAME, nodeClCompile))
 					{
 						warningVersion->put_text((_bstr_t)strWarningVersion.c_str());
 						bUpdated = true;
