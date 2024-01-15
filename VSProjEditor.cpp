@@ -69,7 +69,6 @@ int main(int argc, char* argv[]) {
 	static_cast<void>(init);
 	std::regex vcxproj_pattern(".*\\.vcxproj$");
 	std::regex resource_patter(".*_res.*");
-	_bstr_t strCondition{ "Condition" };
 
 	//params
 	std::vector<std::wstring> buildTypeToFind{};
