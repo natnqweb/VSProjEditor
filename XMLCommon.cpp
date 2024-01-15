@@ -23,7 +23,7 @@ namespace VSProjEditor
 		if (node)
 		{
 			_bstr_t nodeName{};
-			if (FAILED(node->get_nodeName(nodeName.GetAddress()))) return false;
+			if (FAILED(node->get_nodeName(nodeName.GetAddress())) || !nodeName) return false;
 
 			if (StrCmpW(nodeName, str.c_str()) == 0) return true;
 		}
@@ -125,7 +125,7 @@ namespace VSProjEditor
 	{
 		for (const auto& child : GetAllChildNodes(parent))
 		{
-			if (child && !strNodeName.empty() && !strNodeName.compare(GetNodeName(child)))
+			if (child && IsNodeNameEqTo(child, strNodeName))
 			{
 				outputNodes.push_back(child);
 			}
