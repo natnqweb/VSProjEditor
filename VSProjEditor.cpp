@@ -14,7 +14,7 @@ namespace VSProjEditor
 		std::cout << "-vw turn on specifci Warning version for all nodes under source dir (recursive)\n";
 		std::cout << "-bt specify build types that we will work in example -bt \"Release,Debug\" \n";
 		std::cout << "-exclude_regex \".*\" you can exclude specific filenames from updating\n";
-		std::cout << "-execution \"par\" or \"seq\"  by default default = \"par\"\n";
+		std::cout << "-execution \"par\" or \"seq\"  by default parallel = \"par\"\n";
 
 	}
 	void PushIfDoNotExist(std::vector<std::wstring>& vec, const std::wstring& obj)
