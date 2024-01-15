@@ -13,6 +13,7 @@ namespace VSProjEditor
 		std::cout << "-r same like above but for removing from node\n";
 		std::cout << "-vw turn on specifci Warning version for all nodes under source dir (recursive)\n";
 		std::cout << "-bt specify build types that we will work in example -bt \"Release,Debug\" \n";
+		std::cout << "-exclude_regex \".*\" you can exclude specific filenames from updating";
 
 	}
 	void PushIfDoNotExist(std::vector<std::wstring>& vec, const std::wstring& obj)
@@ -68,7 +69,7 @@ int main(int argc, char* argv[]) {
 	ComInitializer init{};
 	static_cast<void>(init);
 	std::regex vcxproj_pattern(".*\\.vcxproj$");
-	std::regex resource_patter(".*_res.*");
+	std::regex exclude_regex(".*_res.*");
 
 	//params
 	std::vector<std::wstring> buildTypeToFind{};
@@ -102,6 +103,11 @@ int main(int argc, char* argv[]) {
 			std::wstring tempSepareted{ separatedValues.begin(), separatedValues.end() };
 			buildTypeToFind = SplitStr(tempSepareted, ',');
 		}
+		else if ((arg == "-exclude_regex") && i + 1 < argc)
+		{
+			std::string temp{ argv[++i] };
+			exclude_regex = std::regex(temp);
+		}
 	}
 
 
@@ -130,7 +136,7 @@ int main(int argc, char* argv[]) {
 		std::smatch matches;
 		std::string filename = file.path().filename().string();
 		if (std::regex_search(filename, matches, vcxproj_pattern)) {
-			if (std::regex_search(filename, matches, resource_patter))
+			if (std::regex_search(filename, matches, exclude_regex))
 			{
 				continue;
 			}
