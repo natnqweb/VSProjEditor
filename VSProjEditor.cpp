@@ -3,6 +3,7 @@
 
 namespace VSProjEditor
 {
+	std::mutex _m{};
 	static void PrintHelp()
 	{
 		std::cout << "parameters not provided, provide at least on of params:" << std::endl;
@@ -138,18 +139,19 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	for (auto& file : allProjectfiles)
-	{
-		bool bUpdated = false;
-		CComPtr<IXMLDOMDocument> pXMLDoc;
+	
+	std::for_each(std::execution::par_unseq, allProjectfiles.begin(), allProjectfiles.end(), [&](const auto& file)
+		{
+			bool bUpdated = false;
+	CComPtr<IXMLDOMDocument> pXMLDoc{};
 		if (FAILED(pXMLDoc.CoCreateInstance(__uuidof(DOMDocument60))))
-			continue;
+			return;
 
 		VARIANT_BOOL status{ VARIANT_FALSE };
 		if (FAILED(pXMLDoc->load(_variant_t(file.c_str()), &status)) || !status)
 		{
 			std::cout << "failed to load xml file : " << file << "\n";
-			continue;
+			return;
 		}
 		std::vector<CComPtr<IXMLDOMNode>> allItemDefinitionGroups{};
 		FindNodesByName((CComPtr<IXMLDOMNode>)pXMLDoc, L"ItemDefinitionGroup", allItemDefinitionGroups, true);
@@ -191,38 +193,49 @@ int main(int argc, char* argv[]) {
 			{
 				std::vector<CComPtr<IXMLDOMNode>> allDisableSpecificWarningsNodes{};
 				std::vector<CComPtr<IXMLDOMNode>> allWarningVersionNodes{};
-				FindNodesByName(nodeClCompile, L"DisableSpecificWarnings", allDisableSpecificWarningsNodes, true);
-				FindNodesByName(nodeClCompile, L"WarningVersion", allWarningVersionNodes, true);
+				if (!allWarningsToAdd.empty() || !allWarningsToRemove.empty()) {
+					FindNodesByName(nodeClCompile, L"DisableSpecificWarnings", allDisableSpecificWarningsNodes, true);
 
-				if (!allDisableSpecificWarningsNodes.empty())
-				{
-					for (auto& disableSpecificWarningsNode : allDisableSpecificWarningsNodes)
+					if (!allDisableSpecificWarningsNodes.empty())
 					{
-						disableSpecificWarningsNode->put_text((_bstr_t)UpdateNodeWarnings(GetNodeText(disableSpecificWarningsNode), allWarningsToAdd, allWarningsToRemove).c_str());
-						bUpdated = true;
+						for (auto& disableSpecificWarningsNode : allDisableSpecificWarningsNodes)
+						{
+							disableSpecificWarningsNode->put_text((_bstr_t)UpdateNodeWarnings(GetNodeText(disableSpecificWarningsNode), allWarningsToAdd, allWarningsToRemove).c_str());
+							bUpdated = true;
+						}
+					}
+					else
+					{
+						if (auto disableSpecificWarningsNode = CreateNode(pXMLDoc, L"DisableSpecificWarnings", nodeClCompile))
+						{
+							std::vector<std::wstring> emptyVec{};
+							disableSpecificWarningsNode->put_text((_bstr_t)UpdateNodeWarnings(GetNodeText(disableSpecificWarningsNode), allWarningsToAdd, emptyVec).c_str());
+							bUpdated = true;
+						}
 					}
 				}
-				else 
-				{
-					if (auto disableSpecificWarningsNode = CreateNode(pXMLDoc, L"DisableSpecificWarnings", nodeClCompile))
+
+				if (!strWarningVersion.empty()) {
+					FindNodesByName(nodeClCompile, L"WarningVersion", allWarningVersionNodes, true);
+
+					if (!allWarningVersionNodes.empty())
 					{
-						std::vector<std::wstring> emptyVec{};
-						disableSpecificWarningsNode->put_text((_bstr_t)UpdateNodeWarnings(GetNodeText(disableSpecificWarningsNode), allWarningsToAdd, emptyVec).c_str());
-						bUpdated = true;
+						for (auto& warningVersion : allWarningVersionNodes)
+						{
+							if (!strWarningVersion.compare(GetNodeText(warningVersion)))
+								continue;
+							warningVersion->put_text((_bstr_t)strWarningVersion.c_str());
+							bUpdated = true;
+						}
 					}
-
-				}
-
-				if (!allWarningVersionNodes.empty())
-				{
-					for (auto& warningVersion : allWarningVersionNodes)
+					else
 					{
-
+						if (auto warningVersion = CreateNode(pXMLDoc, L"WarningVersion", nodeClCompile))
+						{
+							warningVersion->put_text((_bstr_t)strWarningVersion.c_str());
+							bUpdated = true;
+						}
 					}
-				}
-				else
-				{
-
 				}
 			}
 
@@ -233,10 +246,11 @@ int main(int argc, char* argv[]) {
 			_variant_t v{ file.c_str() };
 			if (SUCCEEDED(pXMLDoc->save(v)))
 			{
+				std::scoped_lock lck(_m);
 				updatedFiles.push_back(file);
 			}
 		}
-	}
+	});
 
 	std::cout << "numer of projects found : " << allProjectfiles.size() << std::endl;
 	std::cout << "numer of updated projects : " << updatedFiles.size() << std::endl;

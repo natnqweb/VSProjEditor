@@ -46,7 +46,7 @@ namespace VSProjEditor
 		if (FAILED(childNodesList->get_length(&childNodesLength)))
 			return childNodes;
 		for (long i = 0; i < childNodesLength; i++) {
-			CComPtr<IXMLDOMNode> child{nullptr};
+			CComPtr<IXMLDOMNode> child{ nullptr };
 			if (FAILED(childNodesList->get_item(i, &child)) || !child)
 				continue;
 			childNodes.push_back(child);
@@ -58,7 +58,7 @@ namespace VSProjEditor
 		std::wstring result{};
 		if (node) {
 			_bstr_t temp{};
-			if(FAILED(node->get_nodeName(temp.GetAddress()))) return result;
+			if (FAILED(node->get_nodeName(temp.GetAddress()))) return result;
 
 			if (!temp || !temp.length()) return result;
 
@@ -67,7 +67,7 @@ namespace VSProjEditor
 		return result;
 
 	}
-	std::wstring GetNodeValue(CComPtr<IXMLDOMNode> node ) {
+	std::wstring GetNodeValue(CComPtr<IXMLDOMNode> node) {
 		std::wstring result{};
 		if (node) {
 			_variant_t temp{};
@@ -75,7 +75,7 @@ namespace VSProjEditor
 
 			if (temp.vt != VT_BSTR) return result;
 			if (!temp.bstrVal) return result;
-			_bstr_t str{temp.bstrVal};
+			_bstr_t str{ temp.bstrVal };
 			if (!str.length()) return result;
 			result = str;
 		}
@@ -100,7 +100,7 @@ namespace VSProjEditor
 			return nullptr;
 		CComPtr<IXMLDOMNode> newNode{ nullptr };
 		_bstr_t namespaceWarningversionUri{};
-		if (parent && (FAILED(parent->get_namespaceURI(namespaceWarningversionUri.GetAddress())) || !namespaceWarningversionUri.length()) )
+		if (parent && (FAILED(parent->get_namespaceURI(namespaceWarningversionUri.GetAddress())) || !namespaceWarningversionUri.length()))
 		{
 			return nullptr;
 		}
@@ -108,11 +108,11 @@ namespace VSProjEditor
 		{
 			return nullptr;
 		}
-		
+
 
 		if (SUCCEEDED(pDoc->createNode((_variant_t)NODE_ELEMENT, (_bstr_t)nodeName.c_str(), namespaceWarningversionUri, &newNode))) {
-			CComPtr<IXMLDOMNode> outNewNode{nullptr};
-			if (parent && SUCCEEDED(parent->appendChild(newNode,&outNewNode)) && outNewNode) {
+			CComPtr<IXMLDOMNode> outNewNode{ nullptr };
+			if (parent && SUCCEEDED(parent->appendChild(newNode, &outNewNode)) && outNewNode) {
 				return outNewNode;
 			}
 
