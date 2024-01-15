@@ -158,17 +158,7 @@ int main(int argc, char* argv[]) {
 		FindNodesByName((CComPtr<IXMLDOMNode>)pXMLDoc, L"ItemDefinitionGroup", allItemDefinitionGroups, true);
 		for (auto& itemDefinitionGroup : allItemDefinitionGroups)
 		{
-			CComPtr<IXMLDOMNamedNodeMap> itemDefinitionGroupAttMap{};
-
-			if (FAILED(itemDefinitionGroup->get_attributes(&itemDefinitionGroupAttMap)))
-			{
-				continue;
-			}
-			long nDefinitionAttMapLength{ 0 };
-			if (FAILED(itemDefinitionGroupAttMap->get_length(&nDefinitionAttMapLength)))
-			{
-				continue;
-			}
+	
 			bool bFoundBuildType = false;
 			if (auto conditionNode = FindNodeAttribute(itemDefinitionGroup, L"Condition"))
 			{

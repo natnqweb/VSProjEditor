@@ -142,6 +142,7 @@ namespace VSProjEditor
 		long nAttributesLength = 0;
 		if (node &&
 			SUCCEEDED(node->get_attributes(&attrMap)) &&
+			attrMap &&
 			SUCCEEDED(attrMap->get_length(&nAttributesLength)) &&
 			nAttributesLength
 			)
