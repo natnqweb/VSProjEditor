@@ -135,7 +135,8 @@ int main(int argc, char* argv[]) {
 	for (auto& file : std::filesystem::recursive_directory_iterator(sourceDir)) {
 		std::smatch matches;
 		std::string filename = file.path().filename().string();
-		if (std::regex_search(filename, matches, vcxproj_pattern)) {
+		if (std::regex_search(filename, matches, vcxproj_pattern))
+		{
 			if (std::regex_search(filename, matches, exclude_regex))
 			{
 				continue;
