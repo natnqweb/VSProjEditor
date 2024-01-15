@@ -100,17 +100,17 @@ namespace VSProjEditor
 			return nullptr;
 		CComPtr<IXMLDOMNode> newNode{ nullptr };
 		_bstr_t namespaceWarningversionUri{};
-		if (parent && (FAILED(parent->get_namespaceURI(namespaceWarningversionUri.GetAddress())) || !namespaceWarningversionUri.length()))
+		if (parent && (FAILED(parent->get_namespaceURI(namespaceWarningversionUri.GetAddress())) || !namespaceWarningversionUri || !namespaceWarningversionUri.length()))
 		{
 			return nullptr;
 		}
-		else if (FAILED(pDoc->get_namespaceURI(namespaceWarningversionUri.GetAddress())) || !namespaceWarningversionUri.length())
+		else if (FAILED(pDoc->get_namespaceURI(namespaceWarningversionUri.GetAddress())) || !namespaceWarningversionUri || !namespaceWarningversionUri.length())
 		{
 			return nullptr;
 		}
 
 
-		if (SUCCEEDED(pDoc->createNode((_variant_t)NODE_ELEMENT, (_bstr_t)nodeName.c_str(), namespaceWarningversionUri, &newNode))) {
+		if (SUCCEEDED(pDoc->createNode((_variant_t)NODE_ELEMENT, (_bstr_t)nodeName.c_str(), namespaceWarningversionUri, &newNode)) && newNode) {
 			CComPtr<IXMLDOMNode> outNewNode{ nullptr };
 			if (parent && SUCCEEDED(parent->appendChild(newNode, &outNewNode)) && outNewNode) {
 				return outNewNode;
