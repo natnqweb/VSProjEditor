@@ -13,7 +13,8 @@ namespace VSProjEditor
 		std::cout << "-r same like above but for removing from node\n";
 		std::cout << "-vw turn on specifci Warning version for all nodes under source dir (recursive)\n";
 		std::cout << "-bt specify build types that we will work in example -bt \"Release,Debug\" \n";
-		std::cout << "-exclude_regex \".*\" you can exclude specific filenames from updating";
+		std::cout << "-exclude_regex \".*\" you can exclude specific filenames from updating\n";
+		std::cout << "-execution \"par\" or \"seq\"  by default default = \"par\"\n";
 
 	}
 	void PushIfDoNotExist(std::vector<std::wstring>& vec, const std::wstring& obj)
@@ -77,7 +78,7 @@ int main(int argc, char* argv[]) {
 	std::wstring sourceDir{};
 	std::wstring strWarningVersion{};
 	std::vector<std::wstring> allWarningsToRemove{};
-
+	bool bAsyncExecution = true;
 	for (int i = 1; i < argc; i+=2) {
 		std::string arg = argv[i];
 		if ((arg == "-a") && i + 1 < argc) {
@@ -107,6 +108,13 @@ int main(int argc, char* argv[]) {
 		{
 			std::string temp{ argv[i + 1] };
 			exclude_regex = std::regex(temp);
+		}
+		else if ((arg == "-execution") && i + 1 < argc)
+		{
+			std::string temp{ argv[i + 1] };
+			if (temp == "seq")
+				bAsyncExecution = false;
+
 		}
 	}
 
@@ -144,11 +152,9 @@ int main(int argc, char* argv[]) {
 			allProjectfiles.push_back(file.path());
 		}
 	}
-
-
-	std::for_each(std::execution::par_unseq, allProjectfiles.begin(), allProjectfiles.end(), [&](const auto& file)
-		{
-			bool bUpdated = false;
+auto fRun = [&](const auto& file)
+{
+	bool bUpdated = false;
 	CComPtr<IXMLDOMDocument> pXMLDoc{};
 	if (FAILED(pXMLDoc.CoCreateInstance(__uuidof(DOMDocument60))))
 		return;
@@ -246,7 +252,12 @@ int main(int argc, char* argv[]) {
 			updatedFiles.push_back(file);
 		}
 	}
-		});
+};
+
+	if (bAsyncExecution)
+		std::for_each(std::execution::par_unseq, allProjectfiles.begin(), allProjectfiles.end(), fRun);
+	else
+		std::for_each(std::execution::seq, allProjectfiles.begin(), allProjectfiles.end(), fRun);
 
 	std::cout << "numer of projects found : " << allProjectfiles.size() << std::endl;
 	std::cout << "numer of updated projects : " << updatedFiles.size() << std::endl;
