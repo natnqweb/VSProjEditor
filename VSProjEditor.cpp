@@ -80,12 +80,12 @@ int main(int argc, char* argv[]) {
 	for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
 		if ((arg == "-a") && i + 1 < argc) {
-			std::string separatedValues{ argv[i + 1] };
+			std::string separatedValues{ argv[i++] };
 			std::wstring tempSepareted{ separatedValues.begin(), separatedValues.end() };
 			allWarningsToAdd = SplitStr(tempSepareted, ',');
 		}
 		else if ((arg == "-r") && i + 1 < argc) {
-			std::string separatedValues{ argv[i + 1] };
+			std::string separatedValues{ argv[i++] };
 			std::wstring tempSepareted{ separatedValues.begin(), separatedValues.end() };
 			allWarningsToRemove = SplitStr(tempSepareted, ',');
 		}
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 			strWarningVersion = std::wstring{ temp.begin(),temp.end() };
 		}
 		else if ((arg == "-bt") && i + 1 < argc) {
-			std::string separatedValues{ argv[i + 1] };
+			std::string separatedValues{ argv[i++] };
 			std::wstring tempSepareted{ separatedValues.begin(), separatedValues.end() };
 			buildTypeToFind = SplitStr(tempSepareted, ',');
 		}
