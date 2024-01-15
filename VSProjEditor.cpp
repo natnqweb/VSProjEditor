@@ -78,34 +78,34 @@ int main(int argc, char* argv[]) {
 	std::wstring strWarningVersion{};
 	std::vector<std::wstring> allWarningsToRemove{};
 
-	for (int i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; i+=2) {
 		std::string arg = argv[i];
 		if ((arg == "-a") && i + 1 < argc) {
-			std::string separatedValues{ argv[i++] };
+			std::string separatedValues{ argv[i + 1] };
 			std::wstring tempSepareted{ separatedValues.begin(), separatedValues.end() };
 			allWarningsToAdd = SplitStr(tempSepareted, ',');
 		}
 		else if ((arg == "-r") && i + 1 < argc) {
-			std::string separatedValues{ argv[i++] };
+			std::string separatedValues{ argv[i + 1] };
 			std::wstring tempSepareted{ separatedValues.begin(), separatedValues.end() };
 			allWarningsToRemove = SplitStr(tempSepareted, ',');
 		}
 		else if ((arg == "-source") && i + 1 < argc) {
-			std::string temp{ argv[++i] };
+			std::string temp{ argv[i + 1] };
 			sourceDir = std::wstring{ temp.begin(),temp.end() };
 		}
 		else if ((arg == "-vw") && i + 1 < argc) {
-			std::string temp{ argv[++i] };
+			std::string temp{ argv[i + 1] };
 			strWarningVersion = std::wstring{ temp.begin(),temp.end() };
 		}
 		else if ((arg == "-bt") && i + 1 < argc) {
-			std::string separatedValues{ argv[i++] };
+			std::string separatedValues{ argv[i+1] };
 			std::wstring tempSepareted{ separatedValues.begin(), separatedValues.end() };
 			buildTypeToFind = SplitStr(tempSepareted, ',');
 		}
 		else if ((arg == "-exclude_regex") && i + 1 < argc)
 		{
-			std::string temp{ argv[++i] };
+			std::string temp{ argv[i + 1] };
 			exclude_regex = std::regex(temp);
 		}
 	}
