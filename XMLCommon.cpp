@@ -37,13 +37,13 @@ namespace VSProjEditor
 			return childNodes;
 
 		CComPtr<IXMLDOMNodeList> childNodesList;
-		if (FAILED(node->get_childNodes(&childNodesList)))
+		if (FAILED(node->get_childNodes(&childNodesList)) || !childNodesList)
 		{
 			return childNodes;
 		}
 
 		long childNodesLength{ 0 };
-		if (FAILED(childNodesList->get_length(&childNodesLength)))
+		if (FAILED(childNodesList->get_length(&childNodesLength)) || !childNodesLength)
 			return childNodes;
 		for (long i = 0; i < childNodesLength; i++) {
 			CComPtr<IXMLDOMNode> child{ nullptr };
@@ -125,12 +125,12 @@ namespace VSProjEditor
 	{
 		for (const auto& child : GetAllChildNodes(parent))
 		{
-			if (!strNodeName.empty() && !strNodeName.compare(strNodeName))
+			if (child && !strNodeName.empty() && !strNodeName.compare(GetNodeName(child)))
 			{
 				outputNodes.push_back(child);
 			}
 
-			if (recursive)
+			if (recursive && child)
 				FindNodesByName(child, strNodeName, outputNodes, recursive);
 		}
 	}
