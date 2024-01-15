@@ -105,9 +105,10 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	if (sourceDir.empty())
+	
+	if (sourceDir.empty() || !std::filesystem::exists(sourceDir))
 	{
-		std::cout << "source directory not provided! cannot perform recursive search!." << std::endl;
+		std::cout << "source directory not provided! or do not exist cannot perform recursive search!." << std::endl;
 		PrintHelp();
 		return 1;
 	}
